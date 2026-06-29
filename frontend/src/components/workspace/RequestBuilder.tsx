@@ -755,7 +755,13 @@ export default function RequestBuilder() {
         {/* Header Row: Title, Save, Environment */}
         <div className="flex justify-between items-center p-3 border-b border-[#333333]">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded text-green-400 border border-green-400/30">HTTP</span>
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
+              activeTab.protocol === 'ws' ? 'text-blue-400 border-blue-400/30' : 
+              activeTab.protocol === 'grpc' ? 'text-purple-400 border-purple-400/30' : 
+              'text-green-400 border-green-400/30'
+            }`}>
+              {activeTab.protocol === 'ws' ? 'WS' : activeTab.protocol === 'grpc' ? 'gRPC' : 'HTTP'}
+            </span>
             <span className="font-semibold text-gray-200 text-sm">{activeTab.name}</span>
           </div>
           <div className="flex items-center gap-3">

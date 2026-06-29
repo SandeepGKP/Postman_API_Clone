@@ -372,6 +372,19 @@ export default function Sidebar() {
     fileInput.click();
   };
 
+  const [defaultProtocol, setDefaultProtocol] = useState<'http' | 'ws' | 'grpc'>('http');
+
+  const getProtocolName = () => {
+    if (defaultProtocol === 'ws') return 'New WebSocket Request';
+    if (defaultProtocol === 'grpc') return 'New gRPC Request';
+    return 'New HTTP Request';
+  };
+
+  const handleProtocolSelect = (protocol: 'http' | 'ws' | 'grpc') => {
+    setDefaultProtocol(protocol);
+    handleNewRequest(protocol);
+  };
+
   return (
     <div className="flex h-full">
       {/* Primary Vertical Navigation */}
@@ -399,10 +412,10 @@ export default function Sidebar() {
         <div className="p-3 border-b border-[#333333] flex flex-col gap-3">
           <div className="flex relative" ref={newDropdownRef}>
             <button 
-              onClick={() => handleNewRequest('http')} 
+              onClick={() => handleNewRequest(defaultProtocol)} 
               className="flex-1 bg-[#0F6F99] hover:bg-[#0d6187] text-white text-sm font-medium py-1.5 rounded-l flex items-center justify-center transition-colors"
             >
-              New Request
+              {getProtocolName()}
             </button>
             <div className="w-[1px] bg-[#2284b3]"></div>
             <button 
@@ -415,19 +428,19 @@ export default function Sidebar() {
             {showNewDropdown && (
               <div className="absolute top-full right-0 mt-1 w-48 bg-[#212121] border border-[#333333] rounded shadow-lg z-50 overflow-hidden py-1">
                 <button 
-                  onClick={() => handleNewRequest('http')}
+                  onClick={() => handleProtocolSelect('http')}
                   className="w-full text-center px-3 py-2 text-xs text-white hover:bg-[#333333] transition-colors"
                 >
                   HTTP Request
                 </button>
                 <button 
-                  onClick={() => handleNewRequest('ws')}
+                  onClick={() => handleProtocolSelect('ws')}
                   className="w-full text-center px-3 py-2 text-xs text-white hover:bg-[#333333] transition-colors"
                 >
                   WebSocket Request
                 </button>
                 <button 
-                  onClick={() => handleNewRequest('grpc')}
+                  onClick={() => handleProtocolSelect('grpc')}
                   className="w-full text-center px-3 py-2 text-xs text-white hover:bg-[#333333] transition-colors"
                 >
                   gRPC Request
