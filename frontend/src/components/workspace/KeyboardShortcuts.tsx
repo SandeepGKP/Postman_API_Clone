@@ -13,7 +13,7 @@ export default function KeyboardShortcuts({ onClose }: KeyboardShortcutsProps) {
     { name: 'Send Request', keys: [modifier, 'Enter'] },
     { name: 'Save Request', keys: [modifier, 'S'] },
     { name: 'New Request', keys: [modifier, 'N'] },
-    { name: 'Close Tab', keys: [modifier, 'W'] },
+    { name: 'Close Tab', keys: ['Alt', 'W'] },
   ];
 
   return (

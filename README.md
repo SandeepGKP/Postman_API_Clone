@@ -28,21 +28,33 @@ This project is built using a modern decoupled architecture:
 
 ## 💾 Database Schema
 
-The backend uses a relational SQLite database. Below is the core schema:
+The backend uses a relational SQLite database. Below is the core schema with dummy data:
 
-- **Workspaces (`workspaces`)**: Top-level container.
-  - `id` (PK), `name`
-- **Collections (`collections`)**: Groups related API requests.
-  - `id` (PK), `workspace_id` (FK), `name`, `description`, `created_at`
-- **Saved Requests (`saved_requests`)**: The actual API calls.
-  - `id` (PK), `collection_id` (FK), `name`, `method`, `url`, `headers`, `query_params`, `body_type`, `body`, `auth_type`, `auth_credentials`
-- **Environments (`environments`)**: Stores variable environments (e.g., 'Production').
-  - `id` (PK), `workspace_id` (FK), `name`
-- **Environment Variables (`environment_variables`)**: Key-value pairs for environments.
-  - `id` (PK), `environment_id` (FK), `key`, `value`
-- **History (`history`)**: Audit log of sent requests.
-  - `id` (PK), `method`, `url`, `status_code`, `response_time`, `response_size`, `created_at`
-- **Mock Servers (`mock_servers`)** & **Monitors (`monitors`)**: For advanced API simulations and health checks.
+### Workspaces (`workspaces`)
+| id | name |
+|----|------|
+| 1  | "My Workspace" |
+| 2  | "Team Testing" |
+
+### Collections (`collections`)
+| id | workspace_id | name | description | created_at |
+|----|--------------|------|-------------|------------|
+| 1  | 1            | "JSONPlaceholder API" | "Sample requests to test the app." | 2026-06-28T10:00:00Z |
+| 2  | 1            | "Auth Services"       | "Testing user login endpoints."    | 2026-06-28T11:00:00Z |
+
+### Saved Requests (`saved_requests`)
+| id | collection_id | name | method | url | body_type | body |
+|----|---------------|------|--------|-----|-----------|------|
+| 1  | 1             | "Get All Posts" | GET    | "{{base_url}}/posts" | none      | ""   |
+| 2  | 1             | "Create Post"   | POST   | "{{base_url}}/posts" | raw       | '{"title": "foo"}' |
+
+### Environments (`environments`)
+| id | workspace_id | name | variables (JSON) |
+|----|--------------|------|------------------|
+| 1  | 1            | "Development" | `[{"key": "base_url", "value": "localhost:8000"}]` |
+| 2  | 1            | "Production"  | `[{"key": "base_url", "value": "api.example.com"}]` |
+
+
 
 ## 📡 API Overview
 

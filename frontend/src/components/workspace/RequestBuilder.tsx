@@ -137,6 +137,12 @@ export default function RequestBuilder() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.altKey && e.key.toLowerCase() === 'w') {
+        e.preventDefault();
+        if (activeTabId) closeTab(activeTabId);
+        return;
+      }
+
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -148,9 +154,6 @@ export default function RequestBuilder() {
           if (activeTab) {
             document.getElementById('save-request-btn')?.click();
           }
-        } else if (e.key.toLowerCase() === 'w') {
-          e.preventDefault();
-          if (activeTabId) closeTab(activeTabId);
         } else if (e.key.toLowerCase() === 'n') {
           e.preventDefault();
           addTab({
@@ -212,7 +215,7 @@ export default function RequestBuilder() {
 
     const resolvedUrl = resolveVariables(activeTab.url);
     if (resolvedUrl.includes('{{') && resolvedUrl.includes('}}')) {
-      addToast("Warning: Unresolved variables in URL. Please select the correct environment.", "warning");
+      addToast("Warning: Unresolved variables in URL. Please select the correct environment.", "error");
     }
 
 
