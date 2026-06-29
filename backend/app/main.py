@@ -13,6 +13,13 @@ from app.db.database import engine, Base
 # Create DB tables
 Base.metadata.create_all(bind=engine)
 
+# Auto-seed if database is empty
+try:
+    import seed
+    seed.run_seed()
+except Exception as e:
+    print("Auto-seed failed:", e)
+
 app = FastAPI(title="Postman Clone API")
 
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
