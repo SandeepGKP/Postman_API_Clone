@@ -34,42 +34,31 @@ Within a Workspace, API routes are logically grouped into **Collections** (like 
 
 Below is the core SQLite schema with dummy data representing this architecture:
 
-```mermaid
-erDiagram
-    WORKSPACES ||--o{ COLLECTIONS : contains
-    WORKSPACES ||--o{ ENVIRONMENTS : configures
-    COLLECTIONS ||--o{ SAVED_REQUESTS : holds
+### 🏢 Workspaces (`workspaces`)
+| `id` 🔑 (PK) | `name` 🏷️ |
+|------------|----------|
+| 1          | "My Workspace" |
+| 2          | "Team Testing" |
 
-    WORKSPACES {
-        int id PK "🔑 (1)"
-        string name "🏷️ 'My Workspace'"
-    }
-    
-    COLLECTIONS {
-        int id PK "🔑 (1)"
-        int workspace_id FK "🔗"
-        string name "🏷️ 'JSONPlaceholder API'"
-        string description "📝 'Sample requests'"
-        datetime created_at "🕒"
-    }
-    
-    SAVED_REQUESTS {
-        int id PK "🔑 (1)"
-        int collection_id FK "🔗"
-        string name "🏷️ 'Get All Posts'"
-        string method "⚙️ 'GET'"
-        string url "🌐 '{{base_url}}/posts'"
-        string body_type "📦 'none'"
-        string body "📄 ''"
-    }
+### 📁 Collections (`collections`)
+| `id` 🔑 (PK) | `workspace_id` 🔗 (FK) | `name` 🏷️ | `description` 📝 | `created_at` 🕒 |
+|------------|----------------------|----------|-----------------|---------------|
+| 1          | 1                    | "JSONPlaceholder API" | "Sample requests to test the app." | 2026-06-28T10:00:00Z |
+| 2          | 1                    | "Auth Services"       | "Testing user login endpoints."    | 2026-06-28T11:00:00Z |
 
-    ENVIRONMENTS {
-        int id PK "🔑 (1)"
-        int workspace_id FK "🔗"
-        string name "🏷️ 'Development'"
-        json variables "🔐 '[{key: base_url}]'"
-    }
-```
+### ⚡ Saved Requests (`saved_requests`)
+| `id` 🔑 (PK) | `collection_id` 🔗 (FK) | `name` 🏷️ | `method` ⚙️ | `url` 🌐 | `body_type` 📦 | `body` 📄 |
+|------------|-----------------------|----------|-----------|--------|--------------|----------|
+| 1          | 1                     | "Get All Posts" | `GET`    | `{{base_url}}/posts` | none      | `""`   |
+| 2          | 1                     | "Create Post"   | `POST`   | `{{base_url}}/posts` | raw       | `'{"title": "foo"}'` |
+
+### 🌍 Environments (`environments`)
+| `id` 🔑 (PK) | `workspace_id` 🔗 (FK) | `name` 🏷️ | `variables` 🔐 (JSON) |
+|------------|----------------------|----------|-----------------------|
+| 1          | 1                    | "Development" | `[{"key": "base_url", "value": "localhost:8000"}]` |
+| 2          | 1                    | "Production"  | `[{"key": "base_url", "value": "api.example.com"}]` |
+
+
 
 ## 📡 API Overview
 
