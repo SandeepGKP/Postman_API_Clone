@@ -636,7 +636,6 @@ export default function RequestBuilder() {
 
   return (
     <div className="flex flex-col h-full bg-[#1E1E1E] overflow-hidden min-w-0">
-      {showSnippetModal && <SnippetGenerator activeTab={activeTab} onClose={() => setShowSnippetModal(false)} />}
       {showCookieManager && <CookieManager onClose={() => setShowCookieManager(false)} />}
 
       {/* Custom Save Modal */}
