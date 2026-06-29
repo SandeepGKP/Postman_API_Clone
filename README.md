@@ -1,6 +1,6 @@
 # Postman API Clone
 
-A professional-grade, fully functional API testing and development environment built to replicate the core features of Postman. This application allows developers to build, test, manage, and execute HTTP requests seamlessly from a unified, modern interface. 
+A fully functional API testing and development environment built to replicate the core features of Postman. This application allows developers to build, test, manage, and execute HTTP requests seamlessly from a unified, modern interface. 
 
 ## 🚀 Features
 

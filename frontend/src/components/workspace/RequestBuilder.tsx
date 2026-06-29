@@ -210,6 +210,12 @@ export default function RequestBuilder() {
     setError(null);
     setResponse(null);
 
+    const resolvedUrl = resolveVariables(activeTab.url);
+    if (resolvedUrl.includes('{{') && resolvedUrl.includes('}}')) {
+      addToast("Warning: Unresolved variables in URL. Please select the correct environment.", "warning");
+    }
+
+
     const headersObj: Record<string, string> = {};
     
     autoHeaders.forEach(ah => {
