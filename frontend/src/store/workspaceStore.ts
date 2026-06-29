@@ -56,6 +56,9 @@ interface WorkspaceState {
   
   selectedEnvironmentId: string | null;
   setSelectedEnvironmentId: (id: string | null) => void;
+  
+  historyRefreshCounter: number;
+  triggerHistoryRefresh: () => void;
 }
 
 export const useWorkspaceStore = create<WorkspaceState>()(
@@ -106,6 +109,9 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       
       selectedEnvironmentId: null,
       setSelectedEnvironmentId: (id) => set({ selectedEnvironmentId: id }),
+      
+      historyRefreshCounter: 0,
+      triggerHistoryRefresh: () => set((state) => ({ historyRefreshCounter: state.historyRefreshCounter + 1 })),
     }),
     {
       name: 'postman-clone-storage',

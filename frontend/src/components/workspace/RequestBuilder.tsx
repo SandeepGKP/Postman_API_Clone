@@ -408,6 +408,7 @@ export default function RequestBuilder() {
       }
       
       const result = await res.json();
+      useWorkspaceStore.getState().triggerHistoryRefresh();
       
       // Handle incoming Set-Cookie
       if (!settingsState['cookie_jar'] && result.headers) {

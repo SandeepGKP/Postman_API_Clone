@@ -7,6 +7,7 @@ import { fetchCollections, fetchHistory, deleteHistory, deleteHistoryByDate, fet
 import { useToastStore } from '@/store/toastStore';
 
 export default function Sidebar() {
+  const historyRefreshCounter = useWorkspaceStore(state => state.historyRefreshCounter);
   const { activeSidebarTab, setActiveSidebarTab, addTab } = useWorkspaceStore();
   const { addToast } = useToastStore();
   const [collections, setCollections] = useState<any[]>([]);
@@ -58,7 +59,13 @@ export default function Sidebar() {
   useEffect(() => {
     setMounted(true);
     loadData();
-  }, [activeSidebarTab]);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      fetchHistory().then(setHistory).catch(console.error);
+    }
+  }, [historyRefreshCounter]);
 
   const handleNewRequest = (protocol: 'http' | 'ws' | 'grpc' = 'http') => {
     addTab(createNewTab(protocol));
