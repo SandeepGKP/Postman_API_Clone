@@ -28,33 +28,48 @@ This project is built using a modern decoupled architecture:
 
 ## 💾 Database Schema
 
-The backend uses a relational SQLite database. Below is the core schema with dummy data:
+The database architecture is designed using a strictly normalized relational model to ensure data integrity and scalable organization. At the highest level, **Workspaces** act as the primary tenant or root container. Everything else branches out from a Workspace. 
 
-### Workspaces (`workspaces`)
-| id | name |
-|----|------|
-| 1  | "My Workspace" |
-| 2  | "Team Testing" |
+Within a Workspace, API routes are logically grouped into **Collections** (like folders), and these Collections contain the actual **Saved Requests** (the endpoints being tested). In parallel, a Workspace can have multiple **Environments** (such as 'Development', 'Staging', or 'Production'), each storing a unique set of **Environment Variables** securely. When a request is sent, the proxy automatically checks the selected Environment, injects the necessary variables into the URL/Headers, executes the request, and logs the result permanently in the **History** table for auditing.
 
-### Collections (`collections`)
-| id | workspace_id | name | description | created_at |
-|----|--------------|------|-------------|------------|
-| 1  | 1            | "JSONPlaceholder API" | "Sample requests to test the app." | 2026-06-28T10:00:00Z |
-| 2  | 1            | "Auth Services"       | "Testing user login endpoints."    | 2026-06-28T11:00:00Z |
+Below is the core SQLite schema with dummy data representing this architecture:
 
-### Saved Requests (`saved_requests`)
-| id | collection_id | name | method | url | body_type | body |
-|----|---------------|------|--------|-----|-----------|------|
-| 1  | 1             | "Get All Posts" | GET    | "{{base_url}}/posts" | none      | ""   |
-| 2  | 1             | "Create Post"   | POST   | "{{base_url}}/posts" | raw       | '{"title": "foo"}' |
+```mermaid
+erDiagram
+    WORKSPACES ||--o{ COLLECTIONS : contains
+    WORKSPACES ||--o{ ENVIRONMENTS : configures
+    COLLECTIONS ||--o{ SAVED_REQUESTS : holds
 
-### Environments (`environments`)
-| id | workspace_id | name | variables (JSON) |
-|----|--------------|------|------------------|
-| 1  | 1            | "Development" | `[{"key": "base_url", "value": "localhost:8000"}]` |
-| 2  | 1            | "Production"  | `[{"key": "base_url", "value": "api.example.com"}]` |
+    WORKSPACES {
+        int id PK "🔑 (1)"
+        string name "🏷️ 'My Workspace'"
+    }
+    
+    COLLECTIONS {
+        int id PK "🔑 (1)"
+        int workspace_id FK "🔗"
+        string name "🏷️ 'JSONPlaceholder API'"
+        string description "📝 'Sample requests'"
+        datetime created_at "🕒"
+    }
+    
+    SAVED_REQUESTS {
+        int id PK "🔑 (1)"
+        int collection_id FK "🔗"
+        string name "🏷️ 'Get All Posts'"
+        string method "⚙️ 'GET'"
+        string url "🌐 '{{base_url}}/posts'"
+        string body_type "📦 'none'"
+        string body "📄 ''"
+    }
 
-
+    ENVIRONMENTS {
+        int id PK "🔑 (1)"
+        int workspace_id FK "🔗"
+        string name "🏷️ 'Development'"
+        json variables "🔐 '[{key: base_url}]'"
+    }
+```
 
 ## 📡 API Overview
 
