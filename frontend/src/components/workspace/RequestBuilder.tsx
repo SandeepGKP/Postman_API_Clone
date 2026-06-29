@@ -62,7 +62,7 @@ export default function RequestBuilder() {
   const { openTabs, activeTabId, setActiveTab, closeTab, updateTab, environments, selectedEnvironmentId, setSelectedEnvironmentId, triggerSendCount, addTab, setEnvironments } = useWorkspaceStore();
   const activeTab = openTabs.find(t => t.id === activeTabId);
   
-  const [configTab, setConfigTab] = useState<'params' | 'headers' | 'body' | 'auth' | 'scripts' | 'tests'>('params');
+  const [configTab, setConfigTab] = useState<'params' | 'headers' | 'body' | 'auth' | 'scripts' | 'tests' | 'settings'>('params');
   const [response, setResponse] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

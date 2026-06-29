@@ -8,6 +8,7 @@ interface ResponseData {
   size: number;
   headers: Record<string, string | string[]>;
   data: string;
+  testResults?: any[];
 }
 
 interface ResponseViewerProps {
@@ -48,7 +49,7 @@ export default function ResponseViewer({ response, isLoading, error }: ResponseV
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      window.find(e.currentTarget.value);
+      (window as any).find(e.currentTarget.value);
     }
   };
 
