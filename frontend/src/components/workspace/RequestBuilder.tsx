@@ -617,7 +617,7 @@ export default function RequestBuilder() {
   const handleSaveResponse = () => {
     if (!response) return;
     try {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(response.body, null, 2));
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(response.data, null, 2));
       const downloadAnchorNode = document.createElement('a');
       downloadAnchorNode.setAttribute("href", dataStr);
       downloadAnchorNode.setAttribute("download", (activeTab?.name || "response") + "_response.json");
@@ -634,11 +634,38 @@ export default function RequestBuilder() {
   const handleOpenResponseInNewTab = () => {
     if (!response) return;
     try {
-      const newWindow = window.open();
-      if (newWindow) {
-        newWindow.document.write(`<pre>${JSON.stringify(response.body, null, 2)}</pre>`);
-        newWindow.document.close();
+      const newTabId = "tab_" + Date.now();
+      let prettyData = response.data;
+      if (typeof response.data === 'string') {
+        try {
+          prettyData = JSON.stringify(JSON.parse(response.data), null, 4);
+        } catch (e) {
+          // Keep as string if not valid JSON
+        }
+      } else if (typeof response.data === 'object') {
+        prettyData = JSON.stringify(response.data, null, 4);
       }
+      
+      addTab({
+        id: newTabId,
+        name: `${activeTab?.name || 'Untitled'} - Response`,
+        method: 'GET',
+        url: '',
+        protocol: 'http',
+        headers: [],
+        queryParams: [],
+        bodyType: 'raw',
+        rawType: 'JSON',
+        body: prettyData,
+        formData: [],
+        urlencoded: [],
+        authType: 'none',
+        authCredentials: {},
+        isResponseTab: true
+      });
+      setActiveTab(newTabId);
+      
+      addToast("Opened response in new tab", "success");
     } catch (e) {
       addToast("Failed to open response", "error");
     }
@@ -790,7 +817,44 @@ export default function RequestBuilder() {
       </div>
       
       <div className="flex flex-col flex-1 overflow-hidden">
-        
+        {activeTab.isResponseTab ? (
+          <div className="flex-1 overflow-auto bg-[#1E1E1E] font-mono text-[13px] leading-[1.6] pb-8 pt-4 pl-2">
+            {activeTab.body.split('\n').map((line, idx) => {
+              const leadingSpaces = line.match(/^\s*/)?.[0].length || 0;
+              return (
+                <div key={idx} className="flex group hover:bg-[#252525]">
+                  <div className="w-12 flex-shrink-0 text-right pr-4 text-gray-600 select-none mr-2 group-hover:text-gray-400">{idx + 1}</div>
+                  <div className="flex-1 min-w-0">
+                    <code 
+                      className="block break-normal text-gray-300 whitespace-pre break-all"
+                      style={{ paddingLeft: `${leadingSpaces}ch`, textIndent: `-${leadingSpaces}ch` }}
+                      dangerouslySetInnerHTML={{
+                        __html: line.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                          let cls = 'text-[#85B1FF]';
+                          if (/^"/.test(match)) {
+                            if (/:$/.test(match)) {
+                              cls = 'text-[#9CDCFE]';
+                            } else {
+                              cls = 'text-[#CE9178]';
+                            }
+                          } else if (/true|false/.test(match)) {
+                            cls = 'text-[#569CD6]';
+                          } else if (/null/.test(match)) {
+                            cls = 'text-[#569CD6]';
+                          } else if (/-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/.test(match)) {
+                            cls = 'text-[#B5CEA8]';
+                          }
+                          return '<span class="' + cls + '">' + match + '</span>';
+                        })
+                      }} 
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <>
         {/* Header Row: Title, Save, Environment */}
         <div className="flex justify-between items-center p-3 border-b border-[#333333]">
           <div className="flex items-center gap-2">
@@ -1333,6 +1397,8 @@ export default function RequestBuilder() {
           )}
         </div>
         </div>
+          </>
+        )}
           </>
         )}
       </div>

@@ -34,6 +34,7 @@ export interface RequestTab {
   isDirty?: boolean;
   savedRequestId?: number;
   collectionId?: number;
+  isResponseTab?: boolean;
 }
 
 interface WorkspaceState {
