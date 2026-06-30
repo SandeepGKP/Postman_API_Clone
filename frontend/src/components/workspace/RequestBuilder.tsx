@@ -80,15 +80,18 @@ export default function RequestBuilder() {
   const [showConfigDropdown, setShowConfigDropdown] = useState(false);
   const [showSendDropdown, setShowSendDropdown] = useState(false);
   const [showSaveDropdown, setShowSaveDropdown] = useState(false);
+  const [showResponseOptions, setShowResponseOptions] = useState(false);
   const configDropdownRef = useRef<HTMLDivElement>(null);
   const sendDropdownRef = useRef<HTMLDivElement>(null);
   const saveDropdownRef = useRef<HTMLDivElement>(null);
+  const responseOptionsRef = useRef<HTMLDivElement>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveName, setSaveName] = useState("");
   const [saveCollectionId, setSaveCollectionId] = useState("");
   const [collections, setCollections] = useState<any[]>([]);
   const [openNativeSelect, setOpenNativeSelect] = useState<string | null>(null);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [settingsState, setSettingsState] = useState<Record<string, boolean>>(() => {
     const initialState: Record<string, boolean> = {};
     SETTINGS_LIST.forEach(s => { initialState[s.id] = s.default; });
@@ -102,11 +105,13 @@ export default function RequestBuilder() {
   const startResize = (e: React.MouseEvent) => {
     e.preventDefault();
     const onMouseMove = (moveEvent: MouseEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
       if (layoutMode === 'vertical') {
-        const newWidth = ((window.innerWidth - moveEvent.clientX) / window.innerWidth) * 100;
+        const newWidth = ((rect.right - moveEvent.clientX) / rect.width) * 100;
         if (newWidth >= 20 && newWidth <= 85) setResponseHeight(newWidth);
       } else {
-        const newHeight = ((window.innerHeight - moveEvent.clientY) / window.innerHeight) * 100;
+        const newHeight = ((rect.bottom - moveEvent.clientY) / rect.height) * 100;
         if (newHeight >= 20 && newHeight <= 85) setResponseHeight(newHeight);
       }
     };
@@ -129,6 +134,9 @@ export default function RequestBuilder() {
       }
       if (saveDropdownRef.current && !saveDropdownRef.current.contains(event.target as Node)) {
         setShowSaveDropdown(false);
+      }
+      if (responseOptionsRef.current && !responseOptionsRef.current.contains(event.target as Node)) {
+        setShowResponseOptions(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -606,6 +614,37 @@ export default function RequestBuilder() {
     setShowSaveModal(true);
   };
 
+  const handleSaveResponse = () => {
+    if (!response) return;
+    try {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(response.body, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", (activeTab?.name || "response") + "_response.json");
+      document.body.appendChild(downloadAnchorNode); 
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      addToast("Response saved successfully!", "success");
+    } catch (e) {
+      addToast("Failed to save response", "error");
+    }
+    setShowResponseOptions(false);
+  };
+
+  const handleOpenResponseInNewTab = () => {
+    if (!response) return;
+    try {
+      const newWindow = window.open();
+      if (newWindow) {
+        newWindow.document.write(`<pre>${JSON.stringify(response.body, null, 2)}</pre>`);
+        newWindow.document.close();
+      }
+    } catch (e) {
+      addToast("Failed to open response", "error");
+    }
+    setShowResponseOptions(false);
+  };
+
   const handleSaveModalSubmit = async () => {
     if (!saveName || !saveCollectionId) return;
 
@@ -645,7 +684,7 @@ export default function RequestBuilder() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#1E1E1E] overflow-hidden min-w-0">
+    <div className="flex flex-col h-full bg-[#1E1E1E] overflow-hidden min-w-0" ref={containerRef}>
       {showCookieManager && <CookieManager onClose={() => setShowCookieManager(false)} />}
 
       {/* Custom Save Modal */}
@@ -1226,13 +1265,42 @@ export default function RequestBuilder() {
               layoutMode === 'vertical' && isResponseCollapsed ? 'flex-col gap-4' : 'gap-4 items-center'
             }`}>
               {(response || error) && !isResponseCollapsed && (
-                <button 
-                  onClick={() => { setResponse(null); setError(null); }} 
-                  className="text-[11px] font-medium hover:text-gray-300 px-1.5 py-0.5 rounded transition-colors"
-                  title="Clear Response"
-                >
-                  Clear
-                </button>
+                <div className="relative" ref={responseOptionsRef}>
+                  <button 
+                    onClick={() => setShowResponseOptions(!showResponseOptions)}
+                    className="p-1 hover:bg-[#333] rounded text-gray-400 hover:text-gray-200 transition-colors"
+                    title="Response Options"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="1"></circle>
+                      <circle cx="19" cy="12" r="1"></circle>
+                      <circle cx="5" cy="12" r="1"></circle>
+                    </svg>
+                  </button>
+                  {showResponseOptions && (
+                    <div className="absolute top-full right-0 mt-1 w-48 bg-[#212121] border border-[#333333] rounded shadow-xl z-50 py-1 flex flex-col">
+                      <button 
+                        onClick={handleSaveResponse}
+                        className="text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-[#333] hover:text-white transition-colors"
+                      >
+                        Save Response
+                      </button>
+                      <button 
+                        onClick={handleOpenResponseInNewTab}
+                        className="text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-[#333] hover:text-white transition-colors"
+                      >
+                        Open Response in new tab
+                      </button>
+                      <div className="h-[1px] bg-[#333] my-1"></div>
+                      <button 
+                        onClick={() => { setResponse(null); setError(null); setShowResponseOptions(false); }} 
+                        className="text-left px-3 py-1.5 text-xs text-red-400 hover:bg-[#333] hover:text-red-300 transition-colors"
+                      >
+                        Clear Response
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
               <div className={`flex ${layoutMode === 'vertical' && isResponseCollapsed ? 'flex-col gap-4' : 'gap-2 items-center'}`}>
                 <button onClick={() => setLayoutMode(prev => prev === 'vertical' ? 'horizontal' : 'vertical')} className="hover:text-gray-300" title="Toggle Pane Layout">

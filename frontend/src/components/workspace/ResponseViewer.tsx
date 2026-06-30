@@ -184,9 +184,6 @@ export default function ResponseViewer({ response, isLoading, error }: ResponseV
           </div>
           <div>Time: <span className="text-green-500 font-medium">{response.time} ms</span></div>
           <div>Size: <span className="text-green-500 font-medium">{(response.size / 1024).toFixed(2)} KB</span></div>
-          <div className="ml-1 cursor-pointer hover:text-gray-300 hidden sm:block">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-          </div>
         </div>
       </div>
       
